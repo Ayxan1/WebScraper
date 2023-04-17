@@ -10,7 +10,7 @@ To run this script, you need to have Python 3 and the following packages install
 
 You can install these packages using pip by running the following command:
 ```bash
-pip install beautifulsoup4 requests
+pip3 install beautifulsoup4 requests
 ```
 
 ## Usage
