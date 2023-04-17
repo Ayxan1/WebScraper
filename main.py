@@ -80,13 +80,16 @@ def get_all_results(url):
 
         current_page_results = extract_data_from_html(soup)
         all_pages_results.extend(current_page_results)
+        print(f'Page {page_number} has been scrapped.')
 
         page_number += 1
 
-    return all_pages_results
+    return all_pages_results, len(all_pages_results)
 
 
 base_url = 'https://search.ipaustralia.gov.au'
 url = f'{base_url}/trademarks/search/result?s=914df9d3-8cbe-4665-888b-81680d516277'
-all_pages_results = get_all_results(url)
+print('Scraper has started...')
+all_pages_results, number_of_elements = get_all_results(url)
+print(f'Scraper has finished.{number_of_elements} elements have been scrapped.')
 write_results_to_file(all_pages_results)
