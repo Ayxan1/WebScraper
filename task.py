@@ -15,52 +15,28 @@ def get_html_source(url):
 
 def extract_data_from_row(tr):
     data = {}
-    number_elem = tr.find('td', {'class': 'number'})
     
-    if number_elem is not None:
-        data['number'] = number_elem.find('a').text.strip()
-    else:
-        data['number'] = None
+    number_elem = tr.find('td', {'class': 'number'})
+    data['number'] = number_elem.find('a').text.strip() if number_elem else None
 
     logo_elem = tr.find('td', {'class': 'trademark image'})
-    if logo_elem is not None and logo_elem.find('img') is not None:
-        data['logo_url'] = logo_elem.find('img')['src']
-    else:
-        data['logo_url'] = None
+    data['logo_url'] = logo_elem.find('img')['src'] if logo_elem and logo_elem.find('img') else None
 
     name_elem = tr.find('td', {'class': 'trademark words'})
-    if name_elem is not None:
-        data['name'] = name_elem.text.strip()
-    else:
-        data['name'] = None
+    data['name'] = name_elem.text.strip() if name_elem else None
 
     classes_elem = tr.find('td', {'class': 'classes'})
-    if classes_elem is not None:
-        data['classes'] = classes_elem.text.strip()
-    else:
-        data['classes'] = None
+    data['classes'] = classes_elem.text.strip() if classes_elem else None
 
     status_elem = tr.find('td', {'class': 'status'})
-    if status_elem is not None:       
-        status = status_elem.text.strip()
-        status = status.replace('●', '')
-        status = status.replace('\n', '')
-
-        if len(status.split(' - ')) > 1:
-            data['status1'] = status.split(' - ')[0]
-            data['status2'] = status.split(' - ')[1]
-        else:
-            data['status1'] = status
-            data['status2'] = None
+    if status_elem:
+        status = status_elem.text.strip().replace('●', '').replace('\n', '')
+        data['status1'], data['status2'] = status.split(' - ') if len(status.split(' - ')) > 1 else (status, None)
     else:
-        data['status1'] = None
-        data['status2'] = None
+        data['status1'], data['status2'] = None, None
 
     details_elem = tr.find('td', {'class': 'number'})
-    if details_elem is not None and details_elem.find('a') is not None:
-        data['details_page_url'] = base_url + details_elem.find('a')['href']
-    else:
-        data['details_page_url'] = None
+    data['details_page_url'] = base_url + details_elem.find('a')['href'] if details_elem and details_elem.find('a') else None
 
     return data
 
@@ -77,10 +53,7 @@ def extract_data_from_html(soup):
 
 def check_no_results(soup):
     no_results_elem = soup.find('div', {'class': 'no-content'})
-    if no_results_elem is not None and 'You have no results.' in no_results_elem.text:
-        return True
-    else:
-        return False
+    return True if no_results_elem and 'You have no results.' in no_results_elem.text else False
     
 
 def write_results_to_file(all_pages_results):
@@ -101,9 +74,7 @@ def get_all_results(url):
 
         soup = BeautifulSoup(html_source, 'html.parser')
 
-        print(page_number)
-
-        # detects end of pagination
+        # Detect end of pagination
         if check_no_results(soup):
             break
 
@@ -115,8 +86,7 @@ def get_all_results(url):
     return all_pages_results
 
 
-
 base_url = 'https://search.ipaustralia.gov.au'
-url = base_url + '/trademarks/search/result?s=914df9d3-8cbe-4665-888b-81680d516277'
+url = f'{base_url}/trademarks/search/result?s=914df9d3-8cbe-4665-888b-81680d516277'
 all_pages_results = get_all_results(url)
 write_results_to_file(all_pages_results)
